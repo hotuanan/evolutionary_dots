@@ -1,13 +1,15 @@
 import pygame
 import math
+
+from pygame.draw import rect
 from brain import Brain
 
 class Dot(pygame.sprite.Sprite):
-    def __init__(self, direction_size=400, screen=None):
-        w, h = pygame.display.get_surface().get_size()
-        self.screen = screen
+    def __init__(self, direction_size=400):
+        self.screen = pygame.display.get_surface()
+        self.w, self.h = self.screen.get_size()
         self.image = pygame.Surface((5, 5))  # The tuple represent size. 
-        self.rect = self.image.get_rect(center=(w/2, h/2))
+        self.rect = self.image.get_rect(center=(self.w/2, self.h/2))
         self.brain = Brain(direction_size)
         self.velocity = [0, 0]
         self.dead = False
@@ -24,6 +26,7 @@ class Dot(pygame.sprite.Sprite):
         acceleration = self.brain.get_acceleration()
         if acceleration is None:
             self.dead = True
+            return
         self.velocity[0] += acceleration[0]
         self.velocity[1] += acceleration[1]
         self.__limit_velocity__()
@@ -33,6 +36,9 @@ class Dot(pygame.sprite.Sprite):
         if self.dead:
             return
         self.__move__()
+        # if not in bounds
+        if not pygame.Rect(0, 0, self.w - 5, self.h - 5).colliderect(self.rect):
+            self.dead = True
 
     def show(self):
         self.screen.blit(self.image, self.rect)
