@@ -1,5 +1,6 @@
 from typing_extensions import runtime
-from dot import Dot
+from population import Population
+from target import Target
 import pygame
 
 WIDTH = 600
@@ -11,32 +12,34 @@ FPS = 60
 pygame.init()
 clock = pygame.time.Clock() 
 screen = pygame.display.set_mode((HEIGHT, WIDTH))
-d = Dot()
+p = Population(population_size=800, max_dot_steps=400)
+goal = Target()
 
 running = True
 while running:
-    dt = clock.tick(FPS) / 1000
+    clock.tick(FPS)
     screen.fill(WHITE)
+    goal.show()
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        
-        # elif event.type == pygame.KEYDOWN: 
-        #     if event.key == pygame.K_w: 
-        #         d.velocity[1] = -200 * dt
-        #     elif event.key == pygame.K_s: 
-        #         d.velocity[1] = 200 * dt
-        #     elif event.key == pygame.K_a: 
-        #         d.velocity[0] = -200 * dt
-        #     elif event.key == pygame.K_d: 
-        #         d.velocity[0] = 200 * dt
-        # elif event.type == pygame.KEYUP: 
-        #     if event.key == pygame.K_w or event.key == pygame.K_s: 
-        #         d.velocity[1] = 0 
-        #     elif event.key == pygame.K_a or event.key == pygame.K_d: 
-        #         d.velocity[0] = 0 
-    d.update()
-    d.show()
+    
+    p.update()
+    if p.all_dots_dead():
+        p.calculate_fitness(target=goal.rect)
+        p.natural_selection()
+        p.mutate_descendants()
+        print('Generation: {}\nBest fitness: {}'.format(p.gen, p.best_fitness))
+        # if p.best_fitness > best_fit:
+        #     best_fit = p.best_fitness
+        #     best_dot = p.best_dot
+        p.gen += 1
+    else:
+        p.collision_with(rect=goal.rect, is_goal=True)
+    p.show()
     pygame.display.update()
+
+
 
     
