@@ -4,7 +4,7 @@ import random
 from dot import Dot
 
 class Population():
-    def __init__(self, population_size: int=100, max_dot_steps: int=400):
+    def __init__(self, population_size: int=100, max_dot_steps: int=400) -> None:
         self.w, self.h = pygame.display.get_surface().get_size()
         self.dots = [Dot(max_steps=max_dot_steps) for _ in range(population_size)]
         self.dots_alive = population_size
@@ -14,7 +14,7 @@ class Population():
         self.best_dot_steps = max_dot_steps
         self.best_fitness = 0
 
-    def update(self):
+    def update(self) -> None:
         for dot in self.dots:
             if dot.dead or dot.in_finish: 
                 continue
@@ -26,14 +26,14 @@ class Population():
                 self.dots_alive -= 1
         self.check_if_out_of_bounds()
 
-    def all_dots_dead(self):
+    def all_dots_dead(self) -> bool:
         return self.dots_alive == 0
 
-    def show(self):
+    def show(self) -> None:
         for dot in self.dots:
             dot.show()
 
-    def check_if_out_of_bounds(self):
+    def check_if_out_of_bounds(self) -> None:
         for dot in self.dots:
             if dot.dead:
                 continue
@@ -42,7 +42,7 @@ class Population():
                 self.dots_alive -= 1
 
 
-    def collision_with(self, rect: pygame.Rect, is_goal: bool):
+    def collision_with(self, rect: pygame.Rect, is_goal: bool) -> None:
         for dot in self.dots:
             if dot.dead or dot.in_finish:
                 continue
@@ -53,12 +53,13 @@ class Population():
                     dot.dead = True
                 self.dots_alive -= 1
 
-    def calculate_fitness(self, target: pygame.Rect):
+    def calculate_fitness(self, target: pygame.Rect) -> None:
+        self.fitness_sum = 0
         self.best_fitness = 0
         self.best_dot = None
         for dot in self.dots:
             dot.calculate_fitness(target)
-            # self.fitness_sum += dot.fitness
+            self.fitness_sum += dot.fitness
             if dot.fitness > self.best_fitness:
                 self.best_fitness = dot.fitness
                 if dot.in_finish:
@@ -66,24 +67,22 @@ class Population():
                 self.best_dot = dot.create_descendant()
         self.best_dot.champion = True
     
-    def calc_fitness_sum(self):
-        self.fitness_sum = 0
-        for dot in self.dots:
-            self.fitness_sum += dot.fitness
-
-    def natural_selection(self):
-        self.calc_fitness_sum()
+    def natural_selection(self) -> None:
         best_parent = self.select_parent()
         self.dots_alive = len(self.dots)
         self.dots = [best_parent.create_descendant() for _ in range(self.dots_alive)]
         self.dots[0] = self.best_dot
 
-    def mutate_descendants(self):
+    def mutate_descendants(self, mutation_rate: float=0.01) -> None:
         for i in range(1, len(self.dots)):
-            self.dots[i].mutate()
+            if self.gen < 25:
+                self.dots[i].mutate(0.5)
+            elif self.gen < 50:
+                self.dots[i].mutate(0.25)
+            else:
+                self.dots[i].mutate(0.01)
 
     def select_parent(self) -> Dot:
-        #TODO - find a good parent selecting function
         r = random.uniform(0, self.fitness_sum)
         current_running_fitness = 0
         for dot in self.dots:

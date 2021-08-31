@@ -12,7 +12,7 @@ FPS = 60
 pygame.init()
 clock = pygame.time.Clock() 
 screen = pygame.display.set_mode((HEIGHT, WIDTH))
-p = Population(population_size=800, max_dot_steps=400)
+p = Population(population_size=400, max_dot_steps=400)
 goal = Target()
 
 running = True
@@ -29,7 +29,7 @@ while running:
     if p.all_dots_dead():
         p.calculate_fitness(target=goal.rect)
         p.natural_selection()
-        p.mutate_descendants()
+        p.mutate_descendants(mutation_rate=0.1)
         print('Generation: {}\nBest fitness: {}'.format(p.gen, p.best_fitness))
         # if p.best_fitness > best_fit:
         #     best_fit = p.best_fitness
