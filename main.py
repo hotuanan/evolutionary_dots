@@ -1,4 +1,5 @@
 from typing_extensions import runtime
+from obstacle import Obstacle
 from population import Population
 from target import Target
 import pygame
@@ -14,12 +15,14 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((HEIGHT, WIDTH))
 p = Population(population_size=400, max_dot_steps=400)
 goal = Target()
+ob = Obstacle(400, 20, WIDTH/2, HEIGHT/2)
 
 running = True
 while running:
     clock.tick(FPS)
     screen.fill(WHITE)
     goal.show()
+    ob.show()
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -36,6 +39,7 @@ while running:
         #     best_dot = p.best_dot
         p.gen += 1
     else:
+        p.collision_with(rect=ob.rect, is_goal=False)
         p.collision_with(rect=goal.rect, is_goal=True)
     p.show()
     pygame.display.update()
