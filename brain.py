@@ -15,8 +15,9 @@ class Brain():
         self.step += 1
         return (x, y)
     
-    def mutate(self, mutation_rate:float=0.01) -> None:
+    def mutate(self, mutation_rate: float=0.01) -> None:
         for i in range(self.directions_size):
             if random.random() < mutation_rate:
                 eps = 0.1 * random.uniform(-2 * math.pi, 2 * math.pi)
                 self.directions[i] = max(min(2 * math.pi, self.directions[i] + eps), 0)
+                # self.directions[i] = random.uniform(0, 2*math.pi)

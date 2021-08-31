@@ -1,3 +1,4 @@
+from typing import ChainMap
 from brain import Brain
 import pygame
 import math
@@ -39,10 +40,10 @@ class Dot(pygame.sprite.Sprite):
 
     def calculate_fitness(self, target: pygame.Rect):
         if self.in_finish:
-            self.fitness = 100 + 100/(self.brain.step + 1)
+            self.fitness = 1 + 100/(self.brain.step + 1)
         else:
             dist = (self.rect.x - target.x)**2 + (self.rect.y - target.y)**2
-            self.fitness = 100/(dist + 0.01*self.brain.step)
+            self.fitness = 100/(dist + 0.001*self.brain.step)
         
     
     def mutate(self, mutation_rate: float=0.01) -> None:
